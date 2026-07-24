@@ -275,7 +275,7 @@ const ROLE_ORDER = [
     "Regular",
     "Active"
 ];
-        fetch('yearbook.json')
+        fetch('https://raw.githubusercontent.com/ratdigester-gg/gg-yearbook/main/yearbook.json?' + new Date().getTime())
             .then(res => res.json())
             .then(data => {
                 yearbookData = Array.isArray(data) ? data : (data.submissions || []);
