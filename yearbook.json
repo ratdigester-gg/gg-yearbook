@@ -3,9 +3,7 @@
         "@everyone",
         "Test Subject"
     ],
-    "blockedUsers": [
-        "686034527386337319"
-    ],
+    "blockedUsers": [],
     "submissions": [
         {
             "user_id": "698476246048178256",
