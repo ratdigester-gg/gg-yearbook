@@ -1,0 +1,31 @@
+{
+    "currentUserRoles": [
+        "@everyone",
+        "Moderator",
+        "Event Department"
+    ],
+    "submissions": [
+        {
+            "username": "harry_16",
+            "quote": "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+            "image_path": "https://cdn.discordapp.com/avatars/853656926981980220/a5e28a32a99e7a3db4a711f477a085e4.png?size=1024",
+            "category": "Department Manager",
+            "user_id": "853656926981980220"
+        },
+        {
+            "user_id": "1194361936968679474",
+            "username": "gracence",
+            "quote": "MEOW MEOW",
+            "image_path": "https://cdn.discordapp.com/avatars/1194361936968679474/27b869e23e566b413c8c2efab6e811e4.png?size=1024",
+            "category": "Moderator"
+        },
+        {
+            "user_id": "872714596484538439",
+            "username": "sussytuna",
+            "quote": "Ideas  MX went into the forest by himself and saw the emerald gem floating infront of him . Follows - secret cave - reward or evil ?",
+            "image_path": "https://cdn.discordapp.com/guilds/1281370786103431188/users/872714596484538439/avatars/be83bf4917aa0569b9e1ae12b5240014.png?size=1024",
+            "category": "Event Department"
+        }
+    ],
+    "blockedUsers": []
+}
