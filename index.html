@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GG Server Yearbook</title>
-    <!-- Nunito matches the soft, rounded geometric font from your screenshot -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Noto Sans import for Discord-like typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -19,6 +19,7 @@
             --border-color: #ffe0e6;   /* Subtle divider lines */
             --badge-bg: #ffe0e6;       /* Soft pink pill badge */
             --badge-text: #ff4d6d;
+            --glow-color: rgba(255, 77, 109, 0.35); /* Amplified glow */
         }
 
         /* Dark Mode Palette */
@@ -32,10 +33,11 @@
             --border-color: #402832;
             --badge-bg: #402832;
             --badge-text: #ff85a1;
+            --glow-color: rgba(255, 133, 161, 0.4);
         }
 
         body {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -66,7 +68,7 @@
 
         header p {
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             margin: 0 0 25px 0;
         }
@@ -81,8 +83,8 @@
         .search-input {
             width: 100%;
             padding: 14px 22px;
-            font-size: 1rem;
-            font-family: 'Nunito', sans-serif;
+            font-size: 0.98rem;
+            font-family: 'gg sans', 'Noto Sans', sans-serif;
             font-weight: 600;
             border-radius: 30px;
             border: 2px solid var(--border-color);
@@ -91,17 +93,17 @@
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.08);
             outline: none;
             box-sizing: border-box;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
         }
 
         .search-input:focus {
             border-color: #ff6b8b;
-            box-shadow: 0 6px 20px rgba(255, 107, 139, 0.2);
+            box-shadow: 0 6px 25px var(--glow-color);
         }
 
         .search-input::placeholder {
             color: var(--text-muted);
-            font-weight: 600;
+            font-weight: 500;
         }
 
         /* Theme Toggle Button */
@@ -118,11 +120,12 @@
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
-            font-family: 'Nunito', sans-serif;
+            font-family: 'gg sans', 'Noto Sans', sans-serif;
         }
 
         .theme-toggle-btn:hover {
-            transform: scale(1.03);
+            transform: scale(1.04);
+            box-shadow: 0 4px 15px var(--glow-color);
         }
 
         .container {
@@ -137,7 +140,7 @@
         }
 
         .category-title {
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             border-bottom: 1.5px solid var(--border-color);
             padding-bottom: 12px;
             margin-bottom: 24px;
@@ -152,7 +155,7 @@
         .category-counter {
             background-color: var(--badge-bg);
             color: var(--badge-text);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 800;
             padding: 2px 10px;
             border-radius: 12px;
@@ -171,16 +174,18 @@
             border-radius: 28px;
             padding: 28px 20px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(255, 133, 161, 0.08);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 18px rgba(255, 133, 161, 0.08);
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s ease;
         }
 
+        /* Amplified Hover Animation & Outer Glow */
         .submission-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 133, 161, 0.15);
+            transform: translateY(-5px);
+            border-color: #ff6b8b;
+            box-shadow: 0 12px 32px var(--glow-color), 0 0 16px rgba(255, 107, 139, 0.2);
         }
 
-        /* Profile image matching reference */
+        /* Circular profile image */
         .submission-card img {
             width: 105px;
             height: 105px;
@@ -192,7 +197,7 @@
 
         .submission-card h3 {
             margin: 0 0 6px 0;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             color: var(--text-color);
             font-weight: 800;
         }
@@ -211,15 +216,15 @@
             text-transform: uppercase;
         }
 
-        /* Clean quote text - NO BOX OR BORDER AT ALL */
+        /* Clean quote text */
         .submission-card p {
             color: var(--text-muted);
             font-style: italic;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 500;
             word-break: break-word;
             margin: 0;
-            line-height: 1.4;
+            line-height: 1.45;
             background: none;
             border: none;
             padding: 0;
@@ -266,7 +271,7 @@
             overflow: hidden;
             border: 1.5px solid var(--border-color);
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.08);
-            transition: transform 0.2s ease;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
             display: inline-block;
             width: 100%;
             margin-bottom: 20px;
@@ -274,7 +279,9 @@
         }
 
         .moment-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            border-color: #ff6b8b;
+            box-shadow: 0 12px 30px var(--glow-color);
         }
 
         .moment-card img {
