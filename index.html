@@ -46,7 +46,7 @@
         header {
             position: relative;
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 20px 20px 20px;
             background: transparent;
         }
 
@@ -68,7 +68,40 @@
             color: var(--text-muted);
             font-size: 1.1rem;
             font-weight: 600;
-            margin: 0;
+            margin: 0 0 25px 0;
+        }
+
+        /* Search Container */
+        .search-container {
+            max-width: 450px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 22px;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            border-radius: 30px;
+            border: 2px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.08);
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: #ff6b8b;
+            box-shadow: 0 6px 20px rgba(255, 107, 139, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         /* Theme Toggle Button */
@@ -115,7 +148,7 @@
             gap: 10px;
         }
 
-        /* Category Counter Badge matching reference image */
+        /* Category Counter Badge */
         .category-counter {
             background-color: var(--badge-bg);
             color: var(--badge-text);
@@ -173,12 +206,12 @@
             font-weight: 800;
             padding: 3px 12px;
             border-radius: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
 
-        /* Plain quote styling without dotted outline */
+        /* Clean quote text - NO BOX OR BORDER AT ALL */
         .submission-card p {
             color: var(--text-muted);
             font-style: italic;
@@ -187,6 +220,10 @@
             word-break: break-word;
             margin: 0;
             line-height: 1.4;
+            background: none;
+            border: none;
+            padding: 0;
+            box-shadow: none;
         }
 
         /* Server Moments Section */
@@ -251,8 +288,13 @@
 
     <header>
         <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle theme">🌙 Dark Mode</button>
-        <h1>📖 Gohar's Guide Server <span>Yearbook 2026</span></h1>
-        <p>Celebrating our community members and unforgettable moments.</p>
+        <h1>📖 GG Server <span>Yearbook</span></h1>
+        <p>Celebrating our community members, hierarchy ranks, and unforgettable moments.</p>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="🔍 Search by username or quote...">
+        </div>
     </header>
 
     <div class="container">
@@ -267,24 +309,12 @@
             <p>Captured memories and highlights from our community!</p>
             
             <div class="moments-grid">
-                <div class="moment-card">
-                    <img src="images/moment1.png" alt="Server Moment 1">
-                </div>
-                <div class="moment-card">
-                    <img src="images/moment2.png" alt="Server Moment 2">
-                </div>
-                <div class="moment-card">
-                    <img src="images/moment3.png" alt="Server Moment 3">
-                </div>
-                <div class="moment-card">
-                    <img src="images/moment4.png" alt="Server Moment 4">
-                </div>
-                <div class="moment-card">
-                    <img src="images/moment5.png" alt="Server Moment 5">
-                </div>
-                <div class="moment-card">
-                    <img src="images/moment6.png" alt="Server Moment 6">
-                </div>
+                <div class="moment-card"><img src="images/moment1.png" alt="Server Moment 1"></div>
+                <div class="moment-card"><img src="images/moment2.png" alt="Server Moment 2"></div>
+                <div class="moment-card"><img src="images/moment3.png" alt="Server Moment 3"></div>
+                <div class="moment-card"><img src="images/moment4.png" alt="Server Moment 4"></div>
+                <div class="moment-card"><img src="images/moment5.png" alt="Server Moment 5"></div>
+                <div class="moment-card"><img src="images/moment6.png" alt="Server Moment 6"></div>
             </div>
         </section>
     </div>
@@ -324,34 +354,50 @@
             "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active"
         ];
 
-        async function fetchAndRenderYearbook() {
-            const container = document.getElementById("categories-container");
-            
+        let allSubmissions = [];
+
+        async function initYearbook() {
             const { data, error } = await supabaseClient
                 .from("submissions")
                 .select("*");
 
             if (error) {
                 console.error("Error fetching submissions:", error);
-                container.innerHTML = `<p style="color: #ef4444; text-align: center;">Failed to load yearbook entries.</p>`;
+                document.getElementById("categories-container").innerHTML = 
+                    `<p style="color: #ef4444; text-align: center;">Failed to load yearbook entries.</p>`;
                 return;
             }
 
-            if (!data || data.length === 0) {
-                container.innerHTML = `<p style="text-align: center; color: var(--text-muted);">No yearbook entries submitted yet!</p>`;
+            allSubmissions = data || [];
+            renderYearbook(allSubmissions);
+
+            // Setup search listener
+            document.getElementById("search-input").addEventListener("input", (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const filtered = allSubmissions.filter(entry => 
+                    (entry.username && entry.username.toLowerCase().includes(query)) ||
+                    (entry.quote && entry.quote.toLowerCase().includes(query))
+                );
+                renderYearbook(filtered);
+            });
+        }
+
+        function renderYearbook(entriesToRender) {
+            const container = document.getElementById("categories-container");
+
+            if (!entriesToRender || entriesToRender.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 1.1rem; padding: 40px 0;">No matching members or quotes found.</p>`;
                 return;
             }
 
-            // Group entries by category based on your role hierarchy order
+            // Group entries by category
             const groupedEntries = {};
             ROLE_HIERARCHY.forEach(role => {
                 groupedEntries[role] = [];
             });
-            
-            // Fallback bucket for any uncategorized roles
             groupedEntries["Active"] = groupedEntries["Active"] || [];
 
-            data.forEach(entry => {
+            entriesToRender.forEach(entry => {
                 const cat = entry.category || "Active";
                 if (!groupedEntries[cat]) {
                     groupedEntries[cat] = [];
@@ -361,7 +407,7 @@
 
             container.innerHTML = "";
 
-            // Render category sections in order of hierarchy
+            // Render category sections in hierarchy order
             ROLE_HIERARCHY.forEach(role => {
                 const entries = groupedEntries[role];
                 if (entries && entries.length > 0) {
@@ -393,7 +439,7 @@
             });
         }
 
-        fetchAndRenderYearbook();
+        initYearbook();
     </script>
 </body>
 </html>
