@@ -8,12 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #fff0f5;       /* Soft pink background */
+            --bg-color: #ffe5ec;       /* True soft pastel pink background */
             --card-bg: #ffffff;        /* Pure white cards */
-            --text-color: #4a3b42;     /* Soft dark brown/gray text */
-            --text-muted: #8c7a81;     /* Muted rose-gray for quotes */
-            --accent-color: #ff69b4;   /* Hot pink accent */
-            --border-color: #ffd1dc;   /* Pastel pink borders */
+            --text-color: #4a2c3a;     /* Deep berry/rose brown for high readability */
+            --text-muted: #9c6b80;     /* Muted rose for quotes and subtitles */
+            --accent-color: #ff85a1;   /* Pastel pink accent */
+            --accent-strong: #ff4d6d;  /* Deep pink for badges, counters, and highlights */
+            --border-color: #ffc2d1;   /* Soft pink borders */
         }
 
         body {
@@ -27,19 +28,22 @@
         header {
             text-align: center;
             padding: 50px 20px;
-            background: linear-gradient(135deg, #ffe4e1, #fff0f5);
+            background: linear-gradient(135deg, #ffc2d1, #ffe5ec);
             border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.1);
         }
 
         header h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
-            color: #d8438e;
+            color: var(--accent-strong);
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }
 
         header p {
             color: var(--text-muted);
             font-size: 1.2rem;
+            font-weight: 500;
         }
 
         .container {
@@ -55,13 +59,27 @@
 
         .category-title {
             font-size: 1.8rem;
-            border-bottom: 2px solid var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
             padding-bottom: 10px;
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #d8438e;
+            color: var(--accent-strong);
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Category Counter Badge */
+        .category-counter {
+            background-color: var(--accent-strong);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: bold;
+            padding: 3px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(255, 77, 109, 0.3);
         }
 
         /* Submissions Grid */
@@ -77,13 +95,14 @@
             border-radius: 16px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .submission-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.25);
+            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.25);
+            border-color: var(--accent-strong);
         }
 
         .submission-card img {
@@ -93,12 +112,14 @@
             object-fit: cover;
             margin-bottom: 15px;
             border: 3px solid var(--accent-color);
+            padding: 2px;
+            background-color: #fff;
         }
 
         .submission-card h3 {
             margin: 0 0 10px 0;
             font-size: 1.3rem;
-            color: #332229;
+            color: var(--text-color);
         }
 
         .submission-card p {
@@ -113,19 +134,20 @@
         #server-moments {
             text-align: center;
             padding: 60px 20px 20px 20px;
-            border-top: 2px solid var(--border-color);
+            border-top: 3px solid var(--border-color);
             margin-top: 60px;
         }
 
         #server-moments h2 {
             font-size: 2.2rem;
             margin-bottom: 10px;
-            color: #d8438e;
+            color: var(--accent-strong);
         }
 
         #server-moments p {
             color: var(--text-muted);
             margin-bottom: 30px;
+            font-weight: 500;
         }
 
         .moments-grid {
@@ -139,13 +161,14 @@
             border-radius: 16px;
             overflow: hidden;
             border: 2px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .moment-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.25);
+            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.25);
+            border-color: var(--accent-strong);
         }
 
         .moment-card img {
@@ -258,8 +281,11 @@
                         `;
                     });
 
+                    // Added the category-counter span next to the role title
                     section.innerHTML = `
-                        <div class="category-title">${role}</div>
+                        <div class="category-title">
+                            ${role} <span class="category-counter">${entries.length}</span>
+                        </div>
                         <div class="submissions-grid">
                             ${cardsHtml}
                         </div>
