@@ -144,11 +144,12 @@
             border-color: var(--accent-strong);
         }
 
+        /* Circular frames for profile pictures, keeping the card square-ish */
         .submission-card img {
             width: 100px;
             height: 100px;
-            border-radius: 14px;
-            object-fit: contain;
+            border-radius: 50%;
+            object-fit: cover;
             margin-bottom: 15px;
             border: 2px solid var(--accent-color);
             padding: 4px;
@@ -189,7 +190,7 @@
             font-weight: 500;
         }
 
-        /* CUSTOM DIMENSION MOMENTS GRID: Uses columns so items flow naturally to fit image dimensions */
+        /* Masonry Grid Layout for Server Moments */
         .moments-grid {
             column-count: 3;
             column-gap: 20px;
@@ -209,7 +210,7 @@
             border: 2px solid var(--border-color);
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
             transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
-            display: inline-block; /* Essential for masonry/column layout */
+            display: inline-block;
             width: 100%;
             margin-bottom: 20px;
             box-sizing: border-box;
@@ -222,7 +223,6 @@
             border-color: var(--accent-strong);
         }
 
-        /* CUSTOM FIT: Adapts completely to the image's native aspect ratio */
         .moment-card img {
             width: 100%;
             height: auto;
@@ -262,17 +262,12 @@
                 </div>
                 <div class="moment-card">
                     <img src="images/moment4.png" alt="Server Moment 4">
-                    <div class="moments-grid">
-    <div class="moment-card">
-        <img src="images/moment5.png" alt="Server Moment 1">
-    </div>
-    <div class="moments-grid">
-    <div class="moment-card">
-        <img src="images/moment6.png" alt="Server Moment 1">
-    </div>
-    
-</div>
-</div>
+                </div>
+                <div class="moment-card">
+                    <img src="images/moment5.png" alt="Server Moment 5">
+                </div>
+                <div class="moment-card">
+                    <img src="images/moment6.png" alt="Server Moment 6">
                 </div>
             </div>
         </section>
