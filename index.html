@@ -8,12 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #ffffff;
-            --text-muted: #aaaaaa;
-            --accent-color: #5865F2;
-            --border-color: #333333;
+            --bg-color: #fff0f5;       /* Soft pink background */
+            --card-bg: #ffffff;        /* Pure white cards */
+            --text-color: #4a3b42;     /* Soft dark brown/gray text */
+            --text-muted: #8c7a81;     /* Muted rose-gray for quotes */
+            --accent-color: #ff69b4;   /* Hot pink accent */
+            --border-color: #ffd1dc;   /* Pastel pink borders */
         }
 
         body {
@@ -27,13 +27,14 @@
         header {
             text-align: center;
             padding: 50px 20px;
-            background: linear-gradient(135deg, #1f1f1f, #121212);
-            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #ffe4e1, #fff0f5);
+            border-bottom: 2px solid var(--border-color);
         }
 
         header h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
+            color: #d8438e;
         }
 
         header p {
@@ -59,6 +60,8 @@
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            color: #d8438e;
+            font-weight: bold;
         }
 
         /* Submissions Grid */
@@ -70,16 +73,17 @@
 
         .submission-card {
             background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .submission-card:hover {
             transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.25);
         }
 
         .submission-card img {
@@ -94,6 +98,7 @@
         .submission-card h3 {
             margin: 0 0 10px 0;
             font-size: 1.3rem;
+            color: #332229;
         }
 
         .submission-card p {
@@ -115,6 +120,7 @@
         #server-moments h2 {
             font-size: 2.2rem;
             margin-bottom: 10px;
+            color: #d8438e;
         }
 
         #server-moments p {
@@ -130,15 +136,16 @@
 
         .moment-card {
             background-color: var(--card-bg);
-            border-radius: 10px;
+            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .moment-card:hover {
             transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.25);
         }
 
         .moment-card img {
