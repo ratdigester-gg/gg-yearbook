@@ -4,38 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GG Server Yearbook</title>
-    <!-- Import gentle rounded font (Quicksand) from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Nunito matches the soft, rounded geometric font from your screenshot -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #ffe5ec;       /* True soft pastel pink background */
+            --bg-color: #fff0f3;       /* Very soft pink background */
             --card-bg: #ffffff;        /* Pure white cards */
-            --text-color: #4a2c3a;     /* Deep berry/rose brown for high readability */
-            --text-muted: #9c6b80;     /* Muted rose for quotes and subtitles */
-            --accent-color: #ff85a1;   /* Pastel pink accent */
-            --accent-strong: #ff4d6d;  /* Deep pink for badges, counters, and highlights */
-            --border-color: #ffc2d1;   /* Soft pink borders */
-            --header-bg: linear-gradient(135deg, #ffc2d1, #ffe5ec);
-            --img-bg: #fff0f3;         /* Soft background for contained images */
+            --text-color: #38252e;     /* Deep soft berry text */
+            --text-muted: #806873;     /* Muted neutral rose */
+            --accent-color: #ffb3c6;   /* Light soft pink border */
+            --accent-strong: #ff4d6d;  /* Darker pink accent */
+            --border-color: #ffe0e6;   /* Subtle divider lines */
+            --badge-bg: #ffe0e6;       /* Soft pink pill badge */
+            --badge-text: #ff4d6d;
         }
 
         /* Dark Mode Palette */
         [data-theme="dark"] {
-            --bg-color: #1a1215;       /* Deep dark espresso/berry */
-            --card-bg: #261a1f;        /* Dark rose-tinted card background */
-            --text-color: #ffe5ec;     /* Crisp pastel pink text */
-            --text-muted: #c98a9d;     /* Soft rose muted text */
-            --accent-color: #ff85a1;   /* Keep signature pastel pink */
-            --accent-strong: #ff4d6d;  /* Keep vibrant pink */
-            --border-color: #402832;   /* Subtle dark rose border */
-            --header-bg: linear-gradient(135deg, #261a1f, #1a1215);
-            --img-bg: #1a1215;         /* Dark background behind images */
+            --bg-color: #1a1215;
+            --card-bg: #261a1f;
+            --text-color: #ffe5ec;
+            --text-muted: #c98a9d;
+            --accent-color: #402832;
+            --accent-strong: #ff85a1;
+            --border-color: #402832;
+            --badge-bg: #402832;
+            --badge-text: #ff85a1;
         }
 
         body {
-            font-family: 'Quicksand', 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -46,27 +46,29 @@
         header {
             position: relative;
             text-align: center;
-            padding: 50px 20px;
-            background: var(--header-bg);
-            border-bottom: 2px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.1);
-            transition: background 0.3s ease, border-color 0.3s ease;
+            padding: 40px 20px;
+            background: transparent;
         }
 
         header h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            color: var(--accent-strong);
-            font-weight: 700;
+            font-size: 2.4rem;
+            margin: 0 0 8px 0;
+            color: var(--text-color);
+            font-weight: 800;
             display: inline-flex;
             align-items: center;
             gap: 12px;
         }
 
+        header h1 span {
+            color: #ff6b8b;
+        }
+
         header p {
             color: var(--text-muted);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
+            margin: 0;
         }
 
         /* Theme Toggle Button */
@@ -76,146 +78,130 @@
             right: 20px;
             background-color: var(--card-bg);
             color: var(--text-color);
-            border: 2px solid var(--border-color);
-            padding: 8px 16px;
+            border: 1px solid var(--accent-color);
+            padding: 8px 18px;
             border-radius: 20px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
-            font-family: 'Quicksand', sans-serif;
+            font-family: 'Nunito', sans-serif;
         }
 
         .theme-toggle-btn:hover {
-            border-color: var(--accent-strong);
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         .container {
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
         /* Category Section Styling */
         .category-section {
-            margin-bottom: 50px;
+            margin-bottom: 45px;
         }
 
         .category-title {
             font-size: 1.8rem;
-            border-bottom: 3px solid var(--accent-color);
-            padding-bottom: 10px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent-strong);
-            font-weight: 700;
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            color: var(--text-color);
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        /* Category Counter Badge */
+        /* Category Counter Badge matching reference image */
         .category-counter {
-            background-color: var(--accent-strong);
-            color: #ffffff;
-            font-size: 0.95rem;
-            font-weight: 700;
-            padding: 3px 12px;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(255, 77, 109, 0.3);
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+            font-size: 0.9rem;
+            font-weight: 800;
+            padding: 2px 10px;
+            border-radius: 12px;
         }
 
         /* Submissions Grid */
         .submissions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
+            gap: 24px;
         }
 
         .submission-card {
             background-color: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 24px;
-            padding: 24px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 28px;
+            padding: 28px 20px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 133, 161, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .submission-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.25);
-            border-color: var(--accent-strong);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 133, 161, 0.15);
         }
 
-        /* Circular profile picture frames */
+        /* Profile image matching reference */
         .submission-card img {
-            width: 100px;
-            height: 100px;
+            width: 105px;
+            height: 105px;
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 12px;
-            border: 3px solid var(--accent-strong);
-            padding: 2px;
-            background-color: var(--img-bg);
+            border: 3px solid #ff6b8b;
         }
 
         .submission-card h3 {
             margin: 0 0 6px 0;
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             color: var(--text-color);
-            font-weight: 700;
+            font-weight: 800;
         }
 
-        /* Small role/category pill badge under the username */
+        /* Small role pill badge */
         .role-badge {
             display: inline-block;
-            background-color: #ffe0e9;
-            color: var(--accent-strong);
-            font-size: 0.75rem;
-            font-weight: 700;
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+            font-size: 0.72rem;
+            font-weight: 800;
             padding: 3px 12px;
-            border-radius: 12px;
+            border-radius: 10px;
             margin-bottom: 16px;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        /* Gentle soft quote bubble box */
-        .quote-box {
-            background-color: rgba(255, 229, 236, 0.3);
-            border: 1.5px dashed var(--border-color);
-            border-radius: 16px;
-            padding: 12px;
-        }
-
-        [data-theme="dark"] .quote-box {
-            background-color: rgba(255, 133, 161, 0.05);
-        }
-
+        /* Plain quote styling without dotted outline */
         .submission-card p {
             color: var(--text-muted);
             font-style: italic;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             word-break: break-word;
             margin: 0;
+            line-height: 1.4;
         }
 
         /* Server Moments Section */
         #server-moments {
             text-align: center;
-            padding: 60px 20px 20px 20px;
-            border-top: 3px solid var(--border-color);
-            margin-top: 60px;
+            padding: 50px 20px 20px 20px;
+            border-top: 1.5px solid var(--border-color);
+            margin-top: 50px;
         }
 
         #server-moments h2 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            color: var(--accent-strong);
-            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-weight: 800;
         }
 
         #server-moments p {
@@ -241,27 +227,23 @@
             background-color: var(--card-bg);
             border-radius: 20px;
             overflow: hidden;
-            border: 2px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+            border: 1.5px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.08);
+            transition: transform 0.2s ease;
             display: inline-block;
             width: 100%;
             margin-bottom: 20px;
             box-sizing: border-box;
-            background-color: var(--img-bg);
         }
 
         .moment-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.25);
-            border-color: var(--accent-strong);
+            transform: translateY(-3px);
         }
 
         .moment-card img {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: unset;
         }
     </style>
 </head>
@@ -269,8 +251,8 @@
 
     <header>
         <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle theme">🌙 Dark Mode</button>
-        <h1>📖 GG Server Yearbook</h1>
-        <p>Celebrating our community members, unforgettable moments.</p>
+        <h1>📖 Gohar's Guide Server <span>Yearbook 2026</span></h1>
+        <p>Celebrating our community members and unforgettable moments.</p>
     </header>
 
     <div class="container">
@@ -392,10 +374,8 @@
                             <div class="submission-card">
                                 <img src="${entry.image_url || 'https://via.placeholder.com/100'}" alt="${entry.username}'s avatar">
                                 <h3>${entry.username}</h3>
-                                <div class="role-badge">${role.toUpperCase()}</div>
-                                <div class="quote-box">
-                                    <p>"${entry.quote}"</p>
-                                </div>
+                                <div class="role-badge">${role}</div>
+                                <p>"${entry.quote}"</p>
                             </div>
                         `;
                     });
