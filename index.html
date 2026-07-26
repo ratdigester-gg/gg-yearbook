@@ -15,6 +15,21 @@
             --accent-color: #ff85a1;   /* Pastel pink accent */
             --accent-strong: #ff4d6d;  /* Deep pink for badges, counters, and highlights */
             --border-color: #ffc2d1;   /* Soft pink borders */
+            --header-bg: linear-gradient(135deg, #ffc2d1, #ffe5ec);
+            --img-bg: #fff0f3;         /* Soft background for contained images */
+        }
+
+        /* Dark Mode Palette - Maintains the berry/rose aesthetic in dark tones */
+        [data-theme="dark"] {
+            --bg-color: #1a1215;       /* Deep dark espresso/berry */
+            --card-bg: #261a1f;        /* Dark rose-tinted card background */
+            --text-color: #ffe5ec;     /* Crisp pastel pink text */
+            --text-muted: #c98a9d;     /* Soft rose muted text */
+            --accent-color: #ff85a1;   /* Keep signature pastel pink */
+            --accent-strong: #ff4d6d;  /* Keep vibrant pink */
+            --border-color: #402832;   /* Subtle dark rose border */
+            --header-bg: linear-gradient(135deg, #261a1f, #1a1215);
+            --img-bg: #1a1215;         /* Dark background behind images */
         }
 
         body {
@@ -23,27 +38,51 @@
             color: var(--text-color);
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         header {
+            position: relative;
             text-align: center;
             padding: 50px 20px;
-            background: linear-gradient(135deg, #ffc2d1, #ffe5ec);
+            background: var(--header-bg);
             border-bottom: 2px solid var(--border-color);
             box-shadow: 0 4px 15px rgba(255, 77, 109, 0.1);
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         header h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
             color: var(--accent-strong);
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         header p {
             color: var(--text-muted);
             font-size: 1.2rem;
             font-weight: 500;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--accent-strong);
+            transform: scale(1.05);
         }
 
         .container {
@@ -96,7 +135,7 @@
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .submission-card:hover {
@@ -105,15 +144,18 @@
             border-color: var(--accent-strong);
         }
 
+        /* FIXED IMAGE STYLING:
+           Changed from border-radius: 50% (circle) to 14px (rounded square)
+           and object-fit: cover to object-fit: contain so 100% of the image is seen. */
         .submission-card img {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            object-fit: cover;
+            width: 100px;
+            height: 100px;
+            border-radius: 14px;
+            object-fit: contain;
             margin-bottom: 15px;
-            border: 3px solid var(--accent-color);
-            padding: 2px;
-            background-color: #fff;
+            border: 2px solid var(--accent-color);
+            padding: 4px;
+            background-color: var(--img-bg);
         }
 
         .submission-card h3 {
@@ -162,7 +204,11 @@
             overflow: hidden;
             border: 2px solid var(--border-color);
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--img-bg);
         }
 
         .moment-card:hover {
@@ -171,19 +217,23 @@
             border-color: var(--accent-strong);
         }
 
+        /* FIXED MOMENTS STYLING: Ensures full screenshot/photo is visible */
         .moment-card img {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
+            height: 220px;
+            object-fit: contain;
             display: block;
+            padding: 5px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Gohar's Guide Server Yearbook 2026</h1>
-        <p>Celebrating our community members and unforgettable memories we made! </p>
+        <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle theme">🌙 Dark Mode</button>
+        <h1>Server Yearbook</h1>
+        <p>Celebrating our community members, hierarchy ranks, and unforgettable moments.</p>
     </header>
 
     <div class="container">
@@ -215,6 +265,29 @@
     </div>
 
     <script>
+        // --- Dark / Light Mode Logic ---
+        const themeBtn = document.getElementById('theme-btn');
+        const currentTheme = localStorage.getItem('yearbook-theme') || 'light';
+
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.textContent = '☀️ Light Mode';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            if (theme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('yearbook-theme', 'light');
+                themeBtn.textContent = '🌙 Dark Mode';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('yearbook-theme', 'dark');
+                themeBtn.textContent = '☀️ Light Mode';
+            }
+        });
+
+        // --- Supabase & Rendering Logic ---
         const SUPABASE_URL = "https://ziwnnlhyywqolrblpxua.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inppd25ubGh5eXdxb2xyYmxweHVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjM2MzgsImV4cCI6MjEwMDQ5OTYzOH0.xILvd5omkFaUbk6sEBvt3eaXEMeAkMt8_TRXu2Ig0co";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -274,14 +347,13 @@
                     entries.forEach(entry => {
                         cardsHtml += `
                             <div class="submission-card">
-                                <img src="${entry.image_url || 'https://via.placeholder.com/90'}" alt="${entry.username}'s avatar">
+                                <img src="${entry.image_url || 'https://via.placeholder.com/100'}" alt="${entry.username}'s avatar">
                                 <h3>${entry.username}</h3>
                                 <p>"${entry.quote}"</p>
                             </div>
                         `;
                     });
 
-                    // Added the category-counter span next to the role title
                     section.innerHTML = `
                         <div class="category-title">
                             ${role} <span class="category-counter">${entries.length}</span>
