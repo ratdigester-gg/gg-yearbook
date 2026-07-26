@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server Yearbook</title>
+    <title>GG Server Yearbook</title>
+    <!-- Import gentle rounded font (Quicksand) from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -19,7 +21,7 @@
             --img-bg: #fff0f3;         /* Soft background for contained images */
         }
 
-        /* Dark Mode Palette - Maintains the berry/rose aesthetic in dark tones */
+        /* Dark Mode Palette */
         [data-theme="dark"] {
             --bg-color: #1a1215;       /* Deep dark espresso/berry */
             --card-bg: #261a1f;        /* Dark rose-tinted card background */
@@ -33,7 +35,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Quicksand', 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -55,13 +57,16 @@
             font-size: 2.8rem;
             margin-bottom: 10px;
             color: var(--accent-strong);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
         }
 
         header p {
             color: var(--text-muted);
             font-size: 1.2rem;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         /* Theme Toggle Button */
@@ -74,10 +79,11 @@
             border: 2px solid var(--border-color);
             padding: 8px 16px;
             border-radius: 20px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
+            font-family: 'Quicksand', sans-serif;
         }
 
         .theme-toggle-btn:hover {
@@ -104,7 +110,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--accent-strong);
-            font-weight: bold;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -115,7 +121,7 @@
             background-color: var(--accent-strong);
             color: #ffffff;
             font-size: 0.95rem;
-            font-weight: bold;
+            font-weight: 700;
             padding: 3px 12px;
             border-radius: 20px;
             box-shadow: 0 2px 5px rgba(255, 77, 109, 0.3);
@@ -131,8 +137,8 @@
         .submission-card {
             background-color: var(--card-bg);
             border: 2px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 24px;
+            padding: 24px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
             transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
@@ -144,28 +150,55 @@
             border-color: var(--accent-strong);
         }
 
-        /* Circular frames for profile pictures, keeping the card square-ish */
+        /* Circular profile picture frames */
         .submission-card img {
             width: 100px;
             height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 15px;
-            border: 2px solid var(--accent-color);
-            padding: 4px;
+            margin-bottom: 12px;
+            border: 3px solid var(--accent-strong);
+            padding: 2px;
             background-color: var(--img-bg);
         }
 
         .submission-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.3rem;
+            margin: 0 0 6px 0;
+            font-size: 1.35rem;
             color: var(--text-color);
+            font-weight: 700;
+        }
+
+        /* Small role/category pill badge under the username */
+        .role-badge {
+            display: inline-block;
+            background-color: #ffe0e9;
+            color: var(--accent-strong);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Gentle soft quote bubble box */
+        .quote-box {
+            background-color: rgba(255, 229, 236, 0.3);
+            border: 1.5px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        [data-theme="dark"] .quote-box {
+            background-color: rgba(255, 133, 161, 0.05);
         }
 
         .submission-card p {
             color: var(--text-muted);
             font-style: italic;
             font-size: 0.95rem;
+            font-weight: 600;
             word-break: break-word;
             margin: 0;
         }
@@ -182,12 +215,13 @@
             font-size: 2.2rem;
             margin-bottom: 10px;
             color: var(--accent-strong);
+            font-weight: 700;
         }
 
         #server-moments p {
             color: var(--text-muted);
             margin-bottom: 30px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         /* Masonry Grid Layout for Server Moments */
@@ -205,7 +239,7 @@
 
         .moment-card {
             background-color: var(--card-bg);
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
             border: 2px solid var(--border-color);
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.15);
@@ -235,7 +269,7 @@
 
     <header>
         <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle theme">🌙 Dark Mode</button>
-        <h1>Server Yearbook</h1>
+        <h1>📖 GG Server Yearbook</h1>
         <p>Celebrating our community members, hierarchy ranks, and unforgettable moments.</p>
     </header>
 
@@ -358,7 +392,10 @@
                             <div class="submission-card">
                                 <img src="${entry.image_url || 'https://via.placeholder.com/100'}" alt="${entry.username}'s avatar">
                                 <h3>${entry.username}</h3>
-                                <p>"${entry.quote}"</p>
+                                <div class="role-badge">${role.toUpperCase()}</div>
+                                <div class="quote-box">
+                                    <p>"${entry.quote}"</p>
+                                </div>
                             </div>
                         `;
                     });
