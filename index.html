@@ -1,452 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GG Server Yearbook</title>
-    <!-- Noto Sans import for Discord-like typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --bg-color: #fff0f3;       /* Very soft pink background */
-            --card-bg: #ffffff;        /* Pure white cards */
-            --text-color: #38252e;     /* Deep soft berry text */
-            --text-muted: #806873;     /* Muted neutral rose */
-            --accent-color: #ffb3c6;   /* Light soft pink border */
-            --accent-strong: #ff4d6d;  /* Darker pink accent */
-            --border-color: #ffe0e6;   /* Subtle divider lines */
-            --badge-bg: #ffe0e6;       /* Soft pink pill badge */
-            --badge-text: #ff4d6d;
-            --glow-color: rgba(255, 77, 109, 0.35); /* Amplified glow */
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GG Server Yearbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #fff0f5;
+      --card-bg: #ffffff;
+      --card-border: #ffd1dc;
+      --text-main: #4a3b4c;
+      --text-muted: #8c7590;
+      --accent-color: #ff69b4;
+      --accent-hover: #ff1493;
+      --badge-bg: #ffe4e1;
+      --input-bg: #ffffff;
+      --header-bg: rgba(255, 240, 245, 0.85);
+      --shadow: 0 8px 24px rgba(255, 105, 180, 0.12);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        /* Dark Mode Palette */
-        [data-theme="dark"] {
-            --bg-color: #1a1215;
-            --card-bg: #261a1f;
-            --text-color: #ffe5ec;
-            --text-muted: #c98a9d;
-            --accent-color: #402832;
-            --accent-strong: #ff85a1;
-            --border-color: #402832;
-            --badge-bg: #402832;
-            --badge-text: #ff85a1;
-            --glow-color: rgba(255, 133, 161, 0.4);
-        }
+    [data-theme="dark"] {
+      --bg-color: #1a1518;
+      --card-bg: #261f24;
+      --card-border: #3d2e37;
+      --text-main: #ffe6f0;
+      --text-muted: #b39ab0;
+      --accent-color: #ff69b4;
+      --accent-hover: #ff8da1;
+      --badge-bg: #362831;
+      --input-bg: #1f181d;
+      --header-bg: rgba(26, 21, 24, 0.85);
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
 
-        body {
-            font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; transition: background-color 0.3s ease; padding-bottom: 4rem; }
 
-        header {
-            position: relative;
-            text-align: center;
-            padding: 40px 20px 20px 20px;
-            background: transparent;
-        }
+    header { position: sticky; top: 0; z-index: 100; background: var(--header-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--card-border); padding: 1rem 2rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .logo-area h1 { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--text-main), var(--accent-color)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .controls { display: flex; align-items: center; gap: 1rem; flex-grow: 1; max-width: 500px; justify-content: flex-end; }
+    .search-box { position: relative; flex-grow: 1; }
+    .search-box input { width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border-radius: 9999px; border: 1px solid var(--card-border); background-color: var(--input-bg); color: var(--text-main); font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+    .search-box input:focus { border-color: var(--accent-color); }
+    .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+    
+    .theme-toggle { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); padding: 0.65rem; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; transition: var(--transition); }
+    .theme-toggle:hover { border-color: var(--accent-color); }
 
-        header h1 {
-            font-size: 2.4rem;
-            margin: 0 0 8px 0;
-            color: var(--text-color);
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-        }
+    main { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+    .role-section { margin-bottom: 3.5rem; }
+    .role-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--card-border); display: flex; align-items: center; gap: 0.5rem; }
+    .role-count { font-size: 0.8rem; background: var(--badge-bg); color: var(--accent-color); padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 600; }
 
-        header h1 span {
-            color: #ff6b8b;
-        }
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: var(--shadow); transition: var(--transition); }
+    .card:hover { transform: translateY(-6px); border-color: var(--accent-color); }
 
-        header p {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin: 0 0 25px 0;
-        }
+    .avatar-wrapper { position: relative; margin-bottom: 1rem; }
+    .avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); background-color: var(--badge-bg); }
+    .username { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.3rem; word-break: break-word; }
+    .badge { font-size: 0.75rem; font-weight: 600; background-color: var(--badge-bg); color: var(--accent-color); padding: 0.25rem 0.75rem; border-radius: 9999px; margin-bottom: 1rem; text-transform: uppercase; }
+    
+    .quote-box { background: rgba(255, 105, 180, 0.05); border-radius: 12px; padding: 0.85rem; width: 100%; flex-grow: 1; border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; }
+    .quote { font-size: 0.9rem; color: var(--text-muted); font-style: italic; line-height: 1.4; word-break: break-word; }
 
-        /* Search Container */
-        .search-container {
-            max-width: 450px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 14px 22px;
-            font-size: 0.98rem;
-            font-family: 'gg sans', 'Noto Sans', sans-serif;
-            font-weight: 600;
-            border-radius: 30px;
-            border: 2px solid var(--border-color);
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.08);
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.25s ease;
-        }
-
-        .search-input:focus {
-            border-color: #ff6b8b;
-            box-shadow: 0 6px 25px var(--glow-color);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--accent-color);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            font-family: 'gg sans', 'Noto Sans', sans-serif;
-        }
-
-        .theme-toggle-btn:hover {
-            transform: scale(1.04);
-            box-shadow: 0 4px 15px var(--glow-color);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Category Section Styling */
-        .category-section {
-            margin-bottom: 45px;
-        }
-
-        .category-title {
-            font-size: 1.7rem;
-            border-bottom: 1.5px solid var(--border-color);
-            padding-bottom: 12px;
-            margin-bottom: 24px;
-            color: var(--text-color);
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Category Counter Badge */
-        .category-counter {
-            background-color: var(--badge-bg);
-            color: var(--badge-text);
-            font-size: 0.85rem;
-            font-weight: 800;
-            padding: 2px 10px;
-            border-radius: 12px;
-        }
-
-        /* Submissions Grid */
-        .submissions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 24px;
-        }
-
-        .submission-card {
-            background-color: var(--card-bg);
-            border: 1.5px solid var(--border-color);
-            border-radius: 28px;
-            padding: 28px 20px;
-            text-align: center;
-            box-shadow: 0 4px 18px rgba(255, 133, 161, 0.08);
-            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s ease;
-        }
-
-        /* Amplified Hover Animation & Outer Glow */
-        .submission-card:hover {
-            transform: translateY(-5px);
-            border-color: #ff6b8b;
-            box-shadow: 0 12px 32px var(--glow-color), 0 0 16px rgba(255, 107, 139, 0.2);
-        }
-
-        /* Circular profile image */
-        .submission-card img {
-            width: 105px;
-            height: 105px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 12px;
-            border: 3px solid #ff6b8b;
-        }
-
-        .submission-card h3 {
-            margin: 0 0 6px 0;
-            font-size: 1.25rem;
-            color: var(--text-color);
-            font-weight: 800;
-        }
-
-        /* Small role pill badge */
-        .role-badge {
-            display: inline-block;
-            background-color: var(--badge-bg);
-            color: var(--badge-text);
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 3px 12px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        /* Clean quote text */
-        .submission-card p {
-            color: var(--text-muted);
-            font-style: italic;
-            font-size: 0.95rem;
-            font-weight: 500;
-            word-break: break-word;
-            margin: 0;
-            line-height: 1.45;
-            background: none;
-            border: none;
-            padding: 0;
-            box-shadow: none;
-        }
-
-        /* Server Moments Section */
-        #server-moments {
-            text-align: center;
-            padding: 50px 20px 20px 20px;
-            border-top: 1.5px solid var(--border-color);
-            margin-top: 50px;
-        }
-
-        #server-moments h2 {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            color: var(--text-color);
-            font-weight: 800;
-        }
-
-        #server-moments p {
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-
-        /* Masonry Grid Layout for Server Moments */
-        .moments-grid {
-            column-count: 3;
-            column-gap: 20px;
-        }
-
-        @media (max-width: 900px) {
-            .moments-grid { column-count: 2; }
-        }
-        @media (max-width: 600px) {
-            .moments-grid { column-count: 1; }
-        }
-
-        .moment-card {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1.5px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.08);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        .moment-card:hover {
-            transform: translateY(-5px);
-            border-color: #ff6b8b;
-            box-shadow: 0 12px 30px var(--glow-color);
-        }
-
-        .moment-card img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-    </style>
+    .status-message { text-align: center; padding: 4rem 1rem; font-size: 1.1rem; color: var(--text-muted); }
+    .hidden { display: none !important; }
+  </style>
 </head>
-<body>
+<body data-theme="light">
 
-    <header>
-        <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle theme">🌙 Dark Mode</button>
-        <h1>📖 GG Server <span>Yearbook 2026</span></h1>
-        <p>Celebrating our community members and unforgettable moments!</p>
-        
-        <!-- Search Bar -->
-        <div class="search-container">
-            <input type="text" id="search-input" class="search-input" placeholder="🔍 Search by username or quote...">
+  <header>
+    <div class="header-container">
+      <div class="logo-area"><h1>📖 GG Server Yearbook</h1></div>
+      <div class="controls">
+        <div class="search-box">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" placeholder="Search by username or quote...">
         </div>
-    </header>
-
-    <div class="container">
-        <!-- Dynamic Category Sections will render here -->
-        <div id="categories-container">
-            <p style="text-align: center; color: var(--text-muted);">Loading yearbook entries...</p>
-        </div>
-
-        <!-- Server Moments Section -->
-        <section id="server-moments">
-            <h2>Server Moments</h2>
-            <p>Captured memories and highlights from our community!</p>
-            
-            <div class="moments-grid">
-                <div class="moment-card"><img src="images/moment1.png" alt="Server Moment 1"></div>
-                <div class="moment-card"><img src="images/moment2.png" alt="Server Moment 2"></div>
-                <div class="moment-card"><img src="images/moment3.png" alt="Server Moment 3"></div>
-                <div class="moment-card"><img src="images/moment4.png" alt="Server Moment 4"></div>
-                <div class="moment-card"><img src="images/moment5.png" alt="Server Moment 5"></div>
-                <div class="moment-card"><img src="images/moment6.png" alt="Server Moment 6"></div>
-            </div>
-        </section>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme"><span id="themeIcon">🌙</span></button>
+      </div>
     </div>
+  </header>
 
-    <script>
-        // --- Dark / Light Mode Logic ---
-        const themeBtn = document.getElementById('theme-btn');
-        const currentTheme = localStorage.getItem('yearbook-theme') || 'light';
+  <main id="yearbookContainer">
+    <div class="status-message" id="loadingState">⏳ Loading live yearbook entries...</div>
+    <div class="status-message hidden" id="emptyState">No yearbook entries found matching your search.</div>
+  </main>
 
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeBtn.textContent = '☀️ Light Mode';
-        }
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    // --- SUPABASE FRONTEND CONFIGURATION ---
+    const SUPABASE_URL = 'https://ziwnnlhyywqolrblpxua.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inppd25ubGh5eXdxb2xyYmxweHVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjM2MzgsImV4cCI6MjEwMDQ5OTYzOH0.xILvd5omkFaUbk6sEBvt3eaXEMeAkMt8_TRXu2Ig0co';
 
-        themeBtn.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-            if (theme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('yearbook-theme', 'light');
-                themeBtn.textContent = '🌙 Dark Mode';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('yearbook-theme', 'dark');
-                themeBtn.textContent = '☀️ Light Mode';
-            }
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const ROLE_HIERARCHY = [
+      "Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager",
+      "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
+      "Legend", "Elite", "Grand Winner", "YouTube Member", "Sever Booster",
+      "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active"
+    ];
+
+    let allSubmissions = [];
+
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+
+    const savedTheme = localStorage.getItem('gg_yearbook_theme') || 'light';
+    body.setAttribute('data-theme', savedTheme);
+    themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('gg_yearbook_theme', newTheme);
+      themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+
+    async function fetchYearbookData() {
+      const { data, error } = await supabaseClient.from('submissions').select('*');
+      document.getElementById('loadingState').classList.add('hidden');
+
+      if (error) {
+        console.error("Error fetching yearbook:", error);
+        return;
+      }
+
+      if (data) {
+        allSubmissions = data;
+        renderYearbook(allSubmissions);
+      }
+    }
+
+    supabaseClient
+      .channel('live-yearbook-feed')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'submissions' }, () => {
+        fetchYearbookData();
+      })
+      .subscribe();
+
+    function renderYearbook(submissions) {
+      const container = document.getElementById('yearbookContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      container.querySelectorAll('.role-section').forEach(el => el.remove());
+
+      if (submissions.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      const grouped = {};
+      submissions.forEach(entry => {
+        const cat = entry.category || "Active";
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(entry);
+      });
+
+      const sortedCategories = Object.keys(grouped).sort((a, b) => {
+        const indexA = ROLE_HIERARCHY.indexOf(a);
+        const indexB = ROLE_HIERARCHY.indexOf(b);
+        return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+      });
+
+      sortedCategories.forEach(role => {
+        const members = grouped[role];
+        const section = document.createElement('section');
+        section.className = 'role-section';
+
+        const title = document.createElement('h2');
+        title.className = 'role-title';
+        title.innerHTML = `${role} <span class="role-count">${members.length}</span>`;
+        section.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid-container';
+
+        members.forEach(member => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.setAttribute('data-username', member.username.toLowerCase());
+          card.setAttribute('data-quote', (member.quote || '').toLowerCase());
+
+          const avatarUrl = member.image_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+          card.innerHTML = `
+            <div class="avatar-wrapper">
+              <img src="${avatarUrl}" alt="${member.username}" class="avatar" loading="lazy" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            </div>
+            <div class="username">${escapeHTML(member.username)}</div>
+            <div class="badge">${escapeHTML(role)}</div>
+            <div class="quote-box">
+              <p class="quote">"${escapeHTML(member.quote || 'No quote provided.')}"</p>
+            </div>
+          `;
+          grid.appendChild(card);
         });
 
-        // --- Supabase & Rendering Logic ---
-        const SUPABASE_URL = "https://ziwnnlhyywqolrblpxua.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inppd25ubGh5eXdxb2xyYmxweHVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjM2MzgsImV4cCI6MjEwMDQ5OTYzOH0.xILvd5omkFaUbk6sEBvt3eaXEMeAkMt8_TRXu2Ig0co";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+    }
 
-        const ROLE_HIERARCHY = [
-            "Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager",
-            "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
-            "Legend", "Elite", "Grand Winner", "YouTube Member", "Sever Booster",
-            "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active"
-        ];
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      let visibleCount = 0;
 
-        let allSubmissions = [];
+      document.querySelectorAll('.card').forEach(card => {
+        const match = card.getAttribute('data-username').includes(query) || card.getAttribute('data-quote').includes(query);
+        card.classList.toggle('hidden', !match);
+        if (match) visibleCount++;
+      });
 
-        async function initYearbook() {
-            const { data, error } = await supabaseClient
-                .from("submissions")
-                .select("*");
+      document.querySelectorAll('.role-section').forEach(section => {
+        const visibleCards = section.querySelectorAll('.card:not(.hidden)').length;
+        section.classList.toggle('hidden', visibleCards === 0);
+      });
 
-            if (error) {
-                console.error("Error fetching submissions:", error);
-                document.getElementById("categories-container").innerHTML = 
-                    `<p style="color: #ef4444; text-align: center;">Failed to load yearbook entries.</p>`;
-                return;
-            }
+      document.getElementById('emptyState').classList.toggle('hidden', visibleCount > 0 || allSubmissions.length === 0);
+    });
 
-            allSubmissions = data || [];
-            renderYearbook(allSubmissions);
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.innerText = str;
+      return div.innerHTML;
+    }
 
-            // Setup search listener
-            document.getElementById("search-input").addEventListener("input", (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                const filtered = allSubmissions.filter(entry => 
-                    (entry.username && entry.username.toLowerCase().includes(query)) ||
-                    (entry.quote && entry.quote.toLowerCase().includes(query))
-                );
-                renderYearbook(filtered);
-            });
-        }
-
-        function renderYearbook(entriesToRender) {
-            const container = document.getElementById("categories-container");
-
-            if (!entriesToRender || entriesToRender.length === 0) {
-                container.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 1.1rem; padding: 40px 0;">No matching members or quotes found.</p>`;
-                return;
-            }
-
-            // Group entries by category
-            const groupedEntries = {};
-            ROLE_HIERARCHY.forEach(role => {
-                groupedEntries[role] = [];
-            });
-            groupedEntries["Active"] = groupedEntries["Active"] || [];
-
-            entriesToRender.forEach(entry => {
-                const cat = entry.category || "Active";
-                if (!groupedEntries[cat]) {
-                    groupedEntries[cat] = [];
-                }
-                groupedEntries[cat].push(entry);
-            });
-
-            container.innerHTML = "";
-
-            // Render category sections in hierarchy order
-            ROLE_HIERARCHY.forEach(role => {
-                const entries = groupedEntries[role];
-                if (entries && entries.length > 0) {
-                    const section = document.createElement("div");
-                    section.className = "category-section";
-
-                    let cardsHtml = "";
-                    entries.forEach(entry => {
-                        cardsHtml += `
-                            <div class="submission-card">
-                                <img src="${entry.image_url || 'https://via.placeholder.com/100'}" alt="${entry.username}'s avatar">
-                                <h3>${entry.username}</h3>
-                                <div class="role-badge">${role}</div>
-                                <p>"${entry.quote}"</p>
-                            </div>
-                        `;
-                    });
-
-                    section.innerHTML = `
-                        <div class="category-title">
-                            ${role} <span class="category-counter">${entries.length}</span>
-                        </div>
-                        <div class="submissions-grid">
-                            ${cardsHtml}
-                        </div>
-                    `;
-                    container.appendChild(section);
-                }
-            });
-        }
-
-        initYearbook();
-    </script>
+    fetchYearbookData();
+  </script>
 </body>
 </html>
