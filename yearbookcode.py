@@ -14,8 +14,10 @@ if not TOKEN:
     raise RuntimeError("TOKEN not found.")
 
 # --- SUPABASE CONFIGURATION ---
-SUPABASE_URL = "https://ziwnnlhyywqolrblpxua.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inppd25ubGh5eXdxb2xyYmxweHVhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDkyMzYzOCwiZXhwIjoyMTAwNDk5NjM4fQ.AQCUHb4cGCef2yg1MuknjmyLD-S8UWstJDu2ALXmPy4"  
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+  raise RuntimeError("SUPABASE_URL or SUPABASE_KEY not found.")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
