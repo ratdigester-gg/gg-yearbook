@@ -1,11 +1,9 @@
 import os
 import discord
-import os
 from dotenv import load_dotenv
 from discord import app_commands
 from discord.ext import commands
 from supabase import create_client, Client
-
 
 load_dotenv()
 
@@ -17,7 +15,7 @@ if not TOKEN:
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
-  raise RuntimeError("SUPABASE_URL or SUPABASE_KEY not found.")
+    raise RuntimeError("SUPABASE_URL or SUPABASE_KEY not found.")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -27,7 +25,7 @@ ROLE_HIERARCHY = [
     "Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager",
     "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
     "Legend", "Elite", "Grand Winner", "YouTube Member", "Sever Booster",
-    "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active" , "Test Subject"
+    "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active", 
 ]
 ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager", "Event Department", "Moderator"]
 
@@ -90,10 +88,23 @@ def is_moderator(member: discord.Member) -> bool:
 async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
 
+
+# --- DYNAMIC COOLDOWN LOGIC ---
+def yearbook_cooldown_check(interaction: discord.Interaction) -> app_commands.Cooldown | None:
+    caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
+    
+    # Bypass cooldown entirely if the user is a moderator
+    if is_moderator(caller):
+        return None
+    
+    # 2 hours (7200 seconds) cooldown for regular users
+    return app_commands.Cooldown(1, 7200.0)
+
+
 # --- YEARBOOK SUBMISSION COMMAND ---
 @bot.tree.command(name="yearbook", description="Submit or update your entry in the server yearbook!")
 @app_commands.describe(quote=f"Your favorite quote or message (Max {MAX_QUOTE_LENGTH} characters)")
-@app_commands.checks.cooldown(1, 60.0, key=lambda i: i.user.id)
+@app_commands.checks.dynamic_cooldown(yearbook_cooldown_check)
 async def yearbook(interaction: discord.Interaction, quote: str):
     await interaction.response.defer(ephemeral=True)
     user_id = str(interaction.user.id)
@@ -243,7 +254,6 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
 # --- BLOCK USER COMMAND ---
 @bot.tree.command(name="block_user", description="Block a user from submitting to the yearbook.")
 @app_commands.describe(target_user="The user to block", remove_existing="Remove their existing entry?")
-@app_commands.checks.cooldown(1, 60.0, key=lambda i: i.user.id)
 async def block_user(interaction: discord.Interaction, target_user: discord.User, remove_existing: bool = True):
     await interaction.response.defer(ephemeral=True)
     caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
@@ -287,7 +297,6 @@ async def block_user(interaction: discord.Interaction, target_user: discord.User
 # --- UNBLOCK USER COMMAND ---
 @bot.tree.command(name="unblock_user", description="Unblock a user.")
 @app_commands.describe(target_user="The user to unblock")
-@app_commands.checks.cooldown(1, 60.0, key=lambda i: i.user.id)
 async def unblock_user(interaction: discord.Interaction, target_user: discord.User):
     await interaction.response.defer(ephemeral=True)
     caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
@@ -314,14 +323,43 @@ async def unblock_user(interaction: discord.Interaction, target_user: discord.Us
     await interaction.followup.send(f"✅ Unblocked @{target_user.name}.", ephemeral=True)
 
 
+# --- TEMPORARY PURGE COMMAND ---
+@bot.tree.command(name="purge_yearbook", description="Temporary command to safely purge all yearbook entries.")
+async def purge_yearbook(interaction: discord.Interaction):
+    # Hardcoded check for specified user ID
+    if interaction.user.id != 853656926981980220:
+        await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        return
+    
+    await interaction.response.defer(ephemeral=True)
+    
+    try:
+        # ".neq" safely triggers a delete on all valid Discord IDs
+        supabase.table("submissions").delete().neq("user_id", "0").execute()
+        
+        if interaction.guild:
+            await send_log(interaction.guild, f"⚠️ **DATABASE PURGED** | Initiated by: {interaction.user.mention} ({interaction.user.name})")
+            
+        await interaction.followup.send("✅ All yearbook entries have been successfully purged from the database.", ephemeral=True)
+    except Exception as e:
+        await interaction.followup.send("❌ Error purging the database.", ephemeral=True)
+        print(f"⚠️ Database purge error: {e}")
+
+
 # --- UNIVERSAL COOLDOWN ERROR HANDLER ---
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
+        # Convert seconds to hours and minutes for better readability for the 2-hour duration
+        hours, remainder = divmod(int(error.retry_after), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        time_str = f"{hours}h {minutes}m {seconds}s" if hours > 0 else f"{minutes}m {seconds}s"
+        
         if not interaction.response.is_done():
-            await interaction.response.send_message(f"⏳ Please wait {error.retry_after:.1f} seconds before using this command again.", ephemeral=True)
+            await interaction.response.send_message(f"⏳ Please wait **{time_str}** before submitting to the yearbook again.", ephemeral=True)
         else:
-            await interaction.followup.send(f"⏳ Please wait {error.retry_after:.1f} seconds before using this command again.", ephemeral=True)
+            await interaction.followup.send(f"⏳ Please wait **{time_str}** before submitting to the yearbook again.", ephemeral=True)
     else:
         raise error
 
