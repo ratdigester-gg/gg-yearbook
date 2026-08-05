@@ -24,32 +24,11 @@ MAX_QUOTE_LENGTH = 300
 
 # Strictly ordered from highest rank (0) to lowest rank
 ROLE_HIERARCHY = [
-    # Staff
-    "Owner", 
-    "Admin", 
-    "Server Manager", 
-    "Sr. Moderator", 
-    "Moderator", 
-    "Jr. Moderator",
-    # Departments
-    "Department Manager", 
-    "Event Department", 
-    "Contributor", 
-    "Alumni Staff",
-    # Awards & Supporters
-    "🏆 Event Winner", 
-    "🏆 Question of the Day Winner", 
-    "👑 Grand Winner", 
-    "Server Booster", 
-    "YouTube Member",
-    # Level / Activity Roles (Highest to Lowest)
-    "Legend", 
-    "Elite", 
-    "Veteran", 
-    "Regular", 
-    "Active"
+    "Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager",
+    "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
+    "Legend", "Elite", "Grand Winner", "YouTube Member", "Server Booster",
+    "🏆 Event Winner", "🏆 Question of the Day Winner", "Veteran", "Regular", "Active"
 ]
-
 ALLOWED_MOD_ROLES = [
     "Owner", 
     "Admin", 
