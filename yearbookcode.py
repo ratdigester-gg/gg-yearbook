@@ -21,13 +21,45 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- DISCORD CONFIGURATION ---
 MAX_QUOTE_LENGTH = 300
+
+# Strictly ordered from highest rank (0) to lowest rank
 ROLE_HIERARCHY = [
-    "Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager",
-    "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
-    "Legend", "Elite", "Grand Winner", "YouTube Member", "Sever Booster",
-    "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active", 
+    # Staff
+    "Owner", 
+    "Admin", 
+    "Server Manager", 
+    "Sr. Moderator", 
+    "Moderator", 
+    "Jr. Moderator",
+    # Departments
+    "Department Manager", 
+    "Event Department", 
+    "Contributor", 
+    "Alumni Staff",
+    # Awards & Supporters
+    "🏆 Event Winner", 
+    "🏆 Question of the Day Winner", 
+    "👑 Grand Winner", 
+    "Server Booster", 
+    "YouTube Member",
+    # Level / Activity Roles (Highest to Lowest)
+    "Legend", 
+    "Elite", 
+    "Veteran", 
+    "Regular", 
+    "Active"
 ]
-ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager", "Event Department", "Moderator"]
+
+ALLOWED_MOD_ROLES = [
+    "Owner", 
+    "Admin", 
+    "Server Manager", 
+    "Sr. Moderator", 
+    "Moderator", 
+    "Jr. Moderator", 
+    "Department Manager", 
+    "Event Department"
+]
 
 intents = discord.Intents.default()
 intents.members = False
@@ -85,8 +117,7 @@ def is_moderator(member: discord.Member) -> bool:
     return any(role in ALLOWED_MOD_ROLES for role in user_roles)
 
 async def get_member_safe(guild: discord.Guild, user_id: int):
-    """Get a member from cache, falling back to an API fetch if the cache misses
-    (needed now that the members intent is off)."""
+    """Get a member from cache, falling back to an API fetch if the cache misses."""
     if not guild:
         return None
     member = guild.get_member(user_id)
@@ -125,13 +156,14 @@ async def yearbook(interaction: discord.Interaction, quote: str):
 
     user = await get_member_safe(interaction.guild, interaction.user.id) or interaction.user
     user_role_names = [role.name for role in user.roles] if isinstance(user, discord.Member) else []
-    has_permission = any(role_name in ROLE_HIERARCHY for role_name in user_role_names)
     
+    # Check if user has ANY role in ROLE_HIERARCHY or is Server Owner
+    has_permission = any(role_name in ROLE_HIERARCHY for role_name in user_role_names)
     if interaction.guild and interaction.guild.owner_id == interaction.user.id:
         has_permission = True
 
     if not has_permission:
-        await interaction.followup.send("❌ You need to have the **Active** role or higher to submit a yearbook entry.", ephemeral=True)
+        await interaction.followup.send("❌ You do not have an eligible role to submit a yearbook entry.", ephemeral=True)
         return
 
     try:
@@ -147,7 +179,6 @@ async def yearbook(interaction: discord.Interaction, quote: str):
         await interaction.followup.send(f"❌ Quote must be between 1 and {MAX_QUOTE_LENGTH} characters.", ephemeral=True)
         return
 
-    # Check for existing quote to make logs clearer
     old_quote = None
     try:
         old_entry = supabase.table("submissions").select("quote").eq("user_id", user_id).execute()
@@ -212,18 +243,15 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
     caller = await get_member_safe(interaction.guild, interaction.user.id)
     user_is_mod = is_moderator(caller)
 
-    # If no target user is specified, default to self
     if target_user is None:
         target_user = interaction.user
 
     is_self = (target_user.id == interaction.user.id)
 
-    # 1. Non-mods can strictly only delete their own submission
     if not is_self and not user_is_mod:
         await interaction.followup.send("❌ You do not have permission to remove other users' entries. You can only delete your own.", ephemeral=True)
         return
 
-    # 2. Strict Role Hierarchy Check: Mods cannot delete entries of users equal or higher in hierarchy
     if not is_self:
         target_member = await get_member_safe(interaction.guild, target_user.id)
         caller_idx = get_role_index(caller)
@@ -235,7 +263,6 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
 
     target_id = str(target_user.id)
 
-    # Fetch quote before deleting so it can be shown in logs
     deleted_quote = "No quote found in DB"
     try:
         existing = supabase.table("submissions").select("quote").eq("user_id", target_id).execute()
@@ -276,7 +303,6 @@ async def block_user(interaction: discord.Interaction, target_user: discord.User
         await interaction.followup.send("❌ No permission.", ephemeral=True)
         return
 
-    # Hierarchy check for blocking
     target_member = await get_member_safe(interaction.guild, target_user.id)
     if get_role_index(caller) >= get_role_index(target_member) and interaction.user.id != interaction.guild.owner_id:
         await interaction.followup.send(f"❌ **Hierarchy Error:** You cannot block **{target_user.name}** because their role is equal to or higher than yours.", ephemeral=True)
@@ -340,7 +366,6 @@ async def unblock_user(interaction: discord.Interaction, target_user: discord.Us
 # --- TEMPORARY PURGE COMMAND ---
 @bot.tree.command(name="purge_yearbook", description="Temporary command to safely purge all yearbook entries.")
 async def purge_yearbook(interaction: discord.Interaction):
-    # Hardcoded check for specified user ID
     if interaction.user.id != 853656926981980220:
         await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
         return
@@ -348,7 +373,6 @@ async def purge_yearbook(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     
     try:
-        # ".neq" safely triggers a delete on all valid Discord IDs
         supabase.table("submissions").delete().neq("user_id", "0").execute()
         
         if interaction.guild:
@@ -364,7 +388,6 @@ async def purge_yearbook(interaction: discord.Interaction):
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
-        # Convert seconds to hours and minutes for better readability for the 2-hour duration
         hours, remainder = divmod(int(error.retry_after), 3600)
         minutes, seconds = divmod(remainder, 60)
         
