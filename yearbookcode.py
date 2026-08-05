@@ -30,7 +30,7 @@ ROLE_HIERARCHY = [
 ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager", "Event Department", "Moderator"]
 
 intents = discord.Intents.default()
-intents.members = True
+intents.members = False
 
 class YearbookBot(commands.Bot):
     def __init__(self):
@@ -90,8 +90,8 @@ async def on_ready():
 
 
 # --- DYNAMIC COOLDOWN LOGIC ---
-def yearbook_cooldown_check(interaction: discord.Interaction) -> app_commands.Cooldown | None:
-    caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
+async def yearbook_cooldown_check(interaction: discord.Interaction) -> app_commands.Cooldown | None:
+    caller = await get_member_safe(interaction.guild, interaction.user.id)
     
     # Bypass cooldown entirely if the user is a moderator
     if is_moderator(caller):
@@ -109,7 +109,7 @@ async def yearbook(interaction: discord.Interaction, quote: str):
     await interaction.response.defer(ephemeral=True)
     user_id = str(interaction.user.id)
 
-    user = interaction.guild.get_member(interaction.user.id) if interaction.guild else interaction.user
+    user = await get_member_safe(interaction.guild, interaction.user.id) or interaction.user
     user_role_names = [role.name for role in user.roles] if isinstance(user, discord.Member) else []
     has_permission = any(role_name in ROLE_HIERARCHY for role_name in user_role_names)
     
@@ -195,7 +195,7 @@ async def yearbook(interaction: discord.Interaction, quote: str):
 async def remove_yearbook(interaction: discord.Interaction, target_user: discord.User = None):
     await interaction.response.defer(ephemeral=True)
 
-    caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
+    caller = await get_member_safe(interaction.guild, interaction.user.id)
     user_is_mod = is_moderator(caller)
 
     # If no target user is specified, default to self
@@ -211,7 +211,7 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
 
     # 2. Strict Role Hierarchy Check: Mods cannot delete entries of users equal or higher in hierarchy
     if not is_self:
-        target_member = interaction.guild.get_member(target_user.id) if interaction.guild else None
+        target_member = await get_member_safe(interaction.guild, target_user.id)
         caller_idx = get_role_index(caller)
         target_idx = get_role_index(target_member) if target_member else len(ROLE_HIERARCHY)
 
@@ -256,14 +256,14 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
 @app_commands.describe(target_user="The user to block", remove_existing="Remove their existing entry?")
 async def block_user(interaction: discord.Interaction, target_user: discord.User, remove_existing: bool = True):
     await interaction.response.defer(ephemeral=True)
-    caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
+    caller = await get_member_safe(interaction.guild, interaction.user.id)
     
     if not is_moderator(caller):
         await interaction.followup.send("❌ No permission.", ephemeral=True)
         return
 
     # Hierarchy check for blocking
-    target_member = interaction.guild.get_member(target_user.id) if interaction.guild else None
+    target_member = await get_member_safe(interaction.guild, target_user.id)
     if get_role_index(caller) >= get_role_index(target_member) and interaction.user.id != interaction.guild.owner_id:
         await interaction.followup.send(f"❌ **Hierarchy Error:** You cannot block **{target_user.name}** because their role is equal to or higher than yours.", ephemeral=True)
         return
@@ -299,13 +299,13 @@ async def block_user(interaction: discord.Interaction, target_user: discord.User
 @app_commands.describe(target_user="The user to unblock")
 async def unblock_user(interaction: discord.Interaction, target_user: discord.User):
     await interaction.response.defer(ephemeral=True)
-    caller = interaction.guild.get_member(interaction.user.id) if interaction.guild else None
+    caller = await get_member_safe(interaction.guild, interaction.user.id)
     
     if not is_moderator(caller):
         await interaction.followup.send("❌ No permission.", ephemeral=True)
         return
 
-    target_member = interaction.guild.get_member(target_user.id) if interaction.guild else None
+    target_member = await get_member_safe(interaction.guild, target_user.id)
     if get_role_index(caller) >= get_role_index(target_member) and interaction.user.id != interaction.guild.owner_id:
         await interaction.followup.send(f"❌ **Hierarchy Error:** You cannot unblock **{target_user.name}** due to role hierarchy.", ephemeral=True)
         return
