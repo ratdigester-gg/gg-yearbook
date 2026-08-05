@@ -27,10 +27,15 @@ ROLE_HIERARCHY = [
     "Legend", "Elite", "Grand Winner", "YouTube Member", "Server Booster",
     "🏆 Event Winner", "🏆 Question of the Day Winner", "Veteran", "Regular", "Active", 
 ]
-ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager", "Event Department", "Moderator"]
+
+# FIXED: Changed "Senior Moderator" to "Sr. Moderator"
+ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Sr. Moderator", "Department Manager", "Event Department", "Moderator"]
 
 intents = discord.Intents.default()
 intents.members = False
+
+# --- COOLDOWN TRACKER ---
+cooldown_skips = set()
 
 class YearbookBot(commands.Bot):
     def __init__(self):
@@ -106,8 +111,8 @@ async def on_ready():
 async def yearbook_cooldown_check(interaction: discord.Interaction) -> app_commands.Cooldown | None:
     caller = await get_member_safe(interaction.guild, interaction.user.id)
     
-    # Bypass cooldown entirely if the user is a moderator
-    if is_moderator(caller):
+    # Bypass cooldown entirely if the user is a moderator OR has a one-time skip
+    if is_moderator(caller) or interaction.user.id in cooldown_skips:
         return None
     
     # 2 hours (7200 seconds) cooldown for regular users
@@ -198,6 +203,10 @@ async def yearbook(interaction: discord.Interaction, quote: str):
                 f"> **Quote:** \"{cleaned_quote}\""
             )
         await send_log(interaction.guild, log_msg)
+
+    # Remove their one-time skip token if they used one
+    if interaction.user.id in cooldown_skips:
+        cooldown_skips.discard(interaction.user.id)
 
     await interaction.followup.send("✅ Your yearbook entry has been saved and updated live!", ephemeral=True)
 
@@ -382,6 +391,19 @@ async def update(interaction: discord.Interaction):
 
     await interaction.followup.send(f"Pulled successfully. Restarting now.\n```{result.stdout}```", ephemeral=True)
     sys.exit(0)
+
+
+# --- SKIP COOLDOWN COMMAND ---
+@bot.tree.command(name="skip_cooldown", description="[OWNER ONLY] Give a user a one-time cooldown bypass.")
+@app_commands.describe(target_user="The user to grant a cooldown skip")
+async def skip_cooldown(interaction: discord.Interaction, target_user: discord.User):
+    # Hardcoded check so ONLY you can run this
+    if interaction.user.id != 853656926981980220:
+        await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        return
+        
+    cooldown_skips.add(target_user.id)
+    await interaction.response.send_message(f"✅ Cooldown bypassed! {target_user.mention} can now use `/yearbook` immediately one time.", ephemeral=True)
 
 
 # --- UNIVERSAL COOLDOWN ERROR HANDLER ---
