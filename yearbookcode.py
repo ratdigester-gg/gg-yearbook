@@ -24,7 +24,7 @@ MAX_QUOTE_LENGTH = 300
 ROLE_HIERARCHY = [
     "Owner", "Admin", "Server Manager", "Sr. Moderator", "Department Manager",
     "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
-    "Legend", "Elite", "Grand Winner", "YouTube Member", "Sever Booster",
+    "Legend", "Elite", "Grand Winner", "YouTube Member", "Server Booster",
     "🏆 Event Winner", "🏆 Question of the Day Winner", "Veteran", "Regular", "Active", 
 ]
 ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Senior Moderator", "Department Manager", "Event Department", "Moderator"]
@@ -83,6 +83,19 @@ def is_moderator(member: discord.Member) -> bool:
         return True
     user_roles = [r.name for r in member.roles]
     return any(role in ALLOWED_MOD_ROLES for role in user_roles)
+
+async def get_member_safe(guild: discord.Guild, user_id: int):
+    """Get a member from cache, falling back to an API fetch if the cache misses."""
+    if not guild:
+        return None
+    member = guild.get_member(user_id)
+    if member is None:
+        try:
+            member = await guild.fetch_member(user_id)
+        except discord.NotFound:
+            member = None
+    return member
+
 
 @bot.event
 async def on_ready():
@@ -346,7 +359,7 @@ async def purge_yearbook(interaction: discord.Interaction):
         print(f"⚠️ Database purge error: {e}")
 
 
-# update command
+# update
 UPDATE_ALLOWED_ROLE_IDS = {1270827058930647171, 1024089071674462239}
 
 @bot.tree.command(name="update", description="Pull latest changes from GitHub and restart the bot.")
