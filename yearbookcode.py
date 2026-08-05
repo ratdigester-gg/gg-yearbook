@@ -24,11 +24,10 @@ MAX_QUOTE_LENGTH = 300
 ROLE_HIERARCHY = [
     "Owner", "Admin", "Server Manager", "Sr. Moderator", "Department Manager",
     "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
-    "Legend", "Elite", "Grand Winner", "YouTube Member", "Server Booster",
+    "Legend", "Elite", "YouTube Member", "Server Booster",
     "🏆 Event Winner", "🏆 Question of the Day Winner", "Veteran", "Regular", "Active", 
 ]
 
-# FIXED: Changed "Senior Moderator" to "Sr. Moderator"
 ALLOWED_MOD_ROLES = ["Owner", "Admin", "Server Manager", "Sr. Moderator", "Department Manager", "Event Department", "Moderator"]
 
 intents = discord.Intents.default()
@@ -220,18 +219,15 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
     caller = await get_member_safe(interaction.guild, interaction.user.id)
     user_is_mod = is_moderator(caller)
 
-    # If no target user is specified, default to self
     if target_user is None:
         target_user = interaction.user
 
     is_self = (target_user.id == interaction.user.id)
 
-    # 1. Non-mods can strictly only delete their own submission
     if not is_self and not user_is_mod:
         await interaction.followup.send("❌ You do not have permission to remove other users' entries. You can only delete your own.", ephemeral=True)
         return
 
-    # 2. Strict Role Hierarchy Check: Mods cannot delete entries of users equal or higher in hierarchy
     if not is_self:
         target_member = await get_member_safe(interaction.guild, target_user.id)
         caller_idx = get_role_index(caller)
@@ -243,7 +239,6 @@ async def remove_yearbook(interaction: discord.Interaction, target_user: discord
 
     target_id = str(target_user.id)
 
-    # Fetch quote before deleting so it can be shown in logs
     deleted_quote = "No quote found in DB"
     try:
         existing = supabase.table("submissions").select("quote").eq("user_id", target_id).execute()
@@ -284,7 +279,6 @@ async def block_user(interaction: discord.Interaction, target_user: discord.User
         await interaction.followup.send("❌ No permission.", ephemeral=True)
         return
 
-    # Hierarchy check for blocking
     target_member = await get_member_safe(interaction.guild, target_user.id)
     if get_role_index(caller) >= get_role_index(target_member) and interaction.user.id != interaction.guild.owner_id:
         await interaction.followup.send(f"❌ **Hierarchy Error:** You cannot block **{target_user.name}** because their role is equal to or higher than yours.", ephemeral=True)
@@ -348,7 +342,6 @@ async def unblock_user(interaction: discord.Interaction, target_user: discord.Us
 # --- TEMPORARY PURGE COMMAND ---
 @bot.tree.command(name="purge_yearbook", description="Temporary command to safely purge all yearbook entries.")
 async def purge_yearbook(interaction: discord.Interaction):
-    # Hardcoded check for specified user ID
     if interaction.user.id != 853656926981980220:
         await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
         return
@@ -356,7 +349,6 @@ async def purge_yearbook(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     
     try:
-        # ".neq" safely triggers a delete on all valid Discord IDs
         supabase.table("submissions").delete().neq("user_id", "0").execute()
         
         if interaction.guild:
@@ -368,7 +360,7 @@ async def purge_yearbook(interaction: discord.Interaction):
         print(f"⚠️ Database purge error: {e}")
 
 
-# update
+# UPDATE COMMAND
 UPDATE_ALLOWED_ROLE_IDS = {1270827058930647171, 1024089071674462239}
 
 @bot.tree.command(name="update", description="Pull latest changes from GitHub and restart the bot.")
@@ -397,7 +389,6 @@ async def update(interaction: discord.Interaction):
 @bot.tree.command(name="skip_cooldown", description="[OWNER ONLY] Give a user a one-time cooldown bypass.")
 @app_commands.describe(target_user="The user to grant a cooldown skip")
 async def skip_cooldown(interaction: discord.Interaction, target_user: discord.User):
-    # Hardcoded check so ONLY you can run this
     if interaction.user.id != 853656926981980220:
         await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
         return
@@ -410,7 +401,6 @@ async def skip_cooldown(interaction: discord.Interaction, target_user: discord.U
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.CommandOnCooldown):
-        # Convert seconds to hours and minutes for better readability for the 2-hour duration
         hours, remainder = divmod(int(error.retry_after), 3600)
         minutes, seconds = divmod(remainder, 60)
         

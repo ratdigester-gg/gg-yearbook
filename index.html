@@ -373,11 +373,12 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inppd25ubGh5eXdxb2xyYmxweHVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjM2MzgsImV4cCI6MjEwMDQ5OTYzOH0.xILvd5omkFaUbk6sEBvt3eaXEMeAkMt8_TRXu2Ig0co";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Defined in exact order matching Python bot (Grand Winner removed, typos & extra spaces fixed)
         const ROLE_HIERARCHY = [
             "Owner", "Admin", "Server Manager", "Sr. Moderator", "Department Manager",
             "Event Department", "Moderator", "Junior Moderator", "Contributor", "Alumni Staff",
-            "Legend", "Elite", "Grand Winner", "YouTube Member", "Sever Booster",
-            "🏆  Event Winner", "🏆  Question of the Day Winner", "Veteran", "Regular", "Active"
+            "Legend", "Elite", "YouTube Member", "Server Booster",
+            "🏆 Event Winner", "🏆 Question of the Day Winner", "Veteran", "Regular", "Active"
         ];
 
         let allSubmissions = [];
@@ -442,9 +443,12 @@
 
                     let cardsHtml = "";
                     entries.forEach(entry => {
+                        const fallbackImg = "https://via.placeholder.com/105/1c1622/c5a059?text=?";
                         cardsHtml += `
                             <div class="submission-card">
-                                <img src="${entry.image_url || 'https://via.placeholder.com/100'}" alt="${entry.username}'s avatar">
+                                <img src="${entry.image_url || fallbackImg}" 
+                                     alt="${entry.username}'s avatar"
+                                     onerror="this.onerror=null; this.src='${fallbackImg}';">
                                 <h3>${entry.username}</h3>
                                 <div class="role-badge">${role}</div>
                                 <p>"${entry.quote}"</p>
